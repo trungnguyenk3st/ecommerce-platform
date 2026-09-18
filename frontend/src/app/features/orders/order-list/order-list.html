@@ -1,0 +1,43 @@
+<div class="container py-4">
+  <h1 class="h3 mb-4">My orders</h1>
+
+  @if (loading()) {
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  } @else if (result() && result()!.items.length === 0) {
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-receipt fs-1 d-block mb-2"></i>
+      You haven't placed any orders yet.
+    </div>
+  } @else if (result()) {
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of result()!.items; track order.id) {
+            <tr>
+              <td class="fw-semibold">{{ order.orderNumber }}</td>
+              <td class="small text-muted">{{ order.createdAt | date: 'mediumDate' }}</td>
+              <td>{{ order.itemCount }}</td>
+              <td>{{ formatVnd(order.total) }}</td>
+              <td><span class="badge text-bg-light border">{{ order.paymentStatus }}</span></td>
+              <td><span class="badge text-bg-{{ statusVariant(order.status) }}">{{ order.status }}</span></td>
+              <td><a [routerLink]="['/orders', order.id]" class="btn btn-sm btn-outline-primary">View</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination [page]="result()!.page" [totalPages]="result()!.totalPages" (pageChange)="onPageChange($event)"></app-pagination>
+  }
+</div>

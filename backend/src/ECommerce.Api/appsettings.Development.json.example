@@ -1,0 +1,23 @@
+{
+  "_comment": "Copy this file to appsettings.Development.json (gitignored) and fill in real values for local development.",
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=ECommercePlatform;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Connect Timeout=5;"
+  },
+  "Jwt": {
+    "Issuer": "ECommercePlatform",
+    "Audience": "ECommercePlatformClient",
+    "Secret": "REPLACE_WITH_A_RANDOM_STRING_AT_LEAST_32_CHARACTERS_LONG",
+    "AccessTokenMinutes": 30
+  },
+  "VnPay": {
+    "_comment": "Register a free sandbox merchant account at https://sandbox.vnpayment.vn to get your own TmnCode/HashSecret.",
+    "TmnCode": "YOUR_SANDBOX_TMN_CODE",
+    "HashSecret": "YOUR_SANDBOX_HASH_SECRET",
+    "BaseUrl": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+    "ReturnUrl": "http://localhost:4200/checkout/payment-result"
+  },
+  "Cors": {
+    "AllowedOrigins": [ "http://localhost:4200" ]
+  }
+}

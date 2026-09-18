@@ -1,0 +1,66 @@
+<a routerLink="/admin/products" class="small text-decoration-none d-block mb-3"><i class="bi bi-arrow-left me-1"></i>Back to products</a>
+
+<h1 class="h3 mb-4">{{ productId() ? 'Edit product' : 'New product' }}</h1>
+
+<form [formGroup]="form" (ngSubmit)="save()" style="max-width: 700px;">
+  <div class="row g-3">
+    <div class="col-md-8">
+      <label class="form-label">Name</label>
+      <input class="form-control" formControlName="name">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">SKU</label>
+      <input class="form-control" formControlName="sku">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Description</label>
+      <textarea class="form-control" rows="3" formControlName="description"></textarea>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Price (₫)</label>
+      <input type="number" class="form-control" formControlName="price">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Compare-at price (₫, optional)</label>
+      <input type="number" class="form-control" formControlName="compareAtPrice">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Stock quantity</label>
+      <input type="number" class="form-control" formControlName="stockQuantity">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Category</label>
+      <select class="form-select" formControlName="categoryId">
+        <option [ngValue]="0" disabled>Select a category</option>
+        @for (category of categories(); track category.id) {
+          <option [ngValue]="category.id">{{ category.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="isActive" formControlName="isActive">
+        <label class="form-check-label" for="isActive">Active (visible to customers)</label>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Image URLs (first is primary)</label>
+      @for (control of imageControls.controls; track $index) {
+        <div class="input-group mb-2">
+          <input class="form-control" [formControl]="control" placeholder="https://…">
+          <button type="button" class="btn btn-outline-danger" (click)="removeImageField($index)"><i class="bi bi-trash"></i></button>
+        </div>
+      }
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="addImageField()"><i class="bi bi-plus-lg me-1"></i>Add image</button>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary mt-4" [disabled]="saving()">
+    @if (saving()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+    Save product
+  </button>
+</form>

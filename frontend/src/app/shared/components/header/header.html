@@ -1,0 +1,73 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">
+      <i class="bi bi-bag-check-fill me-1"></i>ShopSphere
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products" routerLinkActive="active">All Products</a>
+        </li>
+        @if (categories().length > 0) {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Categories</a>
+            <ul class="dropdown-menu">
+              @for (category of categories(); track category.id) {
+                <li><a class="dropdown-item" routerLink="/products" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a></li>
+              }
+            </ul>
+          </li>
+        }
+      </ul>
+
+      <form class="d-flex me-3 my-2 my-lg-0" (submit)="$event.preventDefault(); onSearch()">
+        <input class="form-control form-control-sm" type="search" placeholder="Search products…" [(ngModel)]="searchTerm" name="searchTerm">
+      </form>
+
+      <ul class="navbar-nav align-items-lg-center gap-lg-2">
+        @if (auth.isAuthenticated()) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/wishlist"><i class="bi bi-heart"></i></a>
+          </li>
+        }
+        <li class="nav-item">
+          <a class="nav-link position-relative" routerLink="/cart">
+            <i class="bi bi-cart3 fs-5"></i>
+            @if (cart.itemCount() > 0) {
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ cart.itemCount() }}</span>
+            }
+          </a>
+        </li>
+
+        @if (auth.isAuthenticated()) {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i>{{ auth.currentUser()?.fullName }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" routerLink="/account/profile">My Profile</a></li>
+              <li><a class="dropdown-item" routerLink="/orders">My Orders</a></li>
+              <li><a class="dropdown-item" routerLink="/account/addresses">Addresses</a></li>
+              @if (auth.isAdmin()) {
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" routerLink="/admin">Admin Dashboard</a></li>
+              }
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" (click)="logout()">Sign out</button></li>
+            </ul>
+          </li>
+        } @else {
+          <li class="nav-item"><a class="nav-link" routerLink="/login">Sign in</a></li>
+          <li class="nav-item">
+            <a class="btn btn-primary btn-sm" routerLink="/register">Sign up</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>

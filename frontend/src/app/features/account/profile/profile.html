@@ -1,0 +1,42 @@
+<div class="container py-4" style="max-width: 600px;">
+  <h1 class="h3 mb-4">My profile</h1>
+
+  <div class="card p-4 mb-4">
+    <h6 class="mb-3">Account details</h6>
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" [value]="auth.currentUser()?.email" disabled>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Full name</label>
+        <input type="text" class="form-control" formControlName="fullName">
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="savingProfile() || profileForm.invalid">
+        @if (savingProfile()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+        Save changes
+      </button>
+    </form>
+  </div>
+
+  <div class="card p-4">
+    <h6 class="mb-3">Change password</h6>
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      @if (passwordError()) {
+        <div class="alert alert-danger py-2 small">{{ passwordError() }}</div>
+      }
+      <div class="mb-3">
+        <label class="form-label">Current password</label>
+        <input type="password" class="form-control" formControlName="currentPassword">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">New password</label>
+        <input type="password" class="form-control" formControlName="newPassword">
+      </div>
+      <button type="submit" class="btn btn-outline-primary" [disabled]="savingPassword() || passwordForm.invalid">
+        @if (savingPassword()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+        Update password
+      </button>
+    </form>
+  </div>
+</div>

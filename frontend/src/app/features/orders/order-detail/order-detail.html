@@ -1,0 +1,60 @@
+@if (order(); as o) {
+  <div class="container py-4">
+    <a routerLink="/orders" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to orders</a>
+
+    <div class="d-flex justify-content-between align-items-start my-3">
+      <div>
+        <h1 class="h4 mb-1">Order {{ o.orderNumber }}</h1>
+        <p class="text-muted small mb-0">Placed on {{ o.createdAt | date: 'medium' }}</p>
+      </div>
+      <span class="badge text-bg-{{ statusVariant(o.status) }} fs-6">{{ o.status }}</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card p-3 mb-3">
+          <h6 class="mb-3">Items</h6>
+          @for (item of o.items; track item.productId) {
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <img [src]="item.productImageUrl || 'https://placehold.co/60x60?text=No+Image'" style="width: 56px; height: 56px; object-fit: cover;" class="rounded" alt="">
+              <div class="flex-grow-1">
+                <div class="fw-semibold">{{ item.productName }}</div>
+                <div class="text-muted small">{{ formatVnd(item.unitPrice) }} × {{ item.quantity }}</div>
+              </div>
+              <div class="fw-semibold">{{ formatVnd(item.lineTotal) }}</div>
+            </div>
+          }
+        </div>
+
+        <div class="card p-3">
+          <h6 class="mb-2">Shipping address</h6>
+          <p class="mb-0">{{ o.shippingFullName }} — {{ o.shippingPhone }}</p>
+          <p class="mb-0 text-muted small">{{ o.shippingLine1 }}{{ o.shippingLine2 ? ', ' + o.shippingLine2 : '' }}, {{ o.shippingCity }}, {{ o.shippingProvince }} {{ o.shippingPostalCode }}</p>
+          @if (o.customerNote) {
+            <p class="mt-2 mb-0 small"><strong>Note:</strong> {{ o.customerNote }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h6 class="mb-3">Payment summary</h6>
+          <div class="d-flex justify-content-between small mb-1"><span class="text-muted">Subtotal</span><span>{{ formatVnd(o.subtotal) }}</span></div>
+          @if (o.discountAmount > 0) {
+            <div class="d-flex justify-content-between small mb-1 text-success"><span>Discount {{ o.couponCode ? '(' + o.couponCode + ')' : '' }}</span><span>−{{ formatVnd(o.discountAmount) }}</span></div>
+          }
+          <div class="d-flex justify-content-between small mb-1"><span class="text-muted">Shipping</span><span>{{ o.shippingFee === 0 ? 'Free' : formatVnd(o.shippingFee) }}</span></div>
+          <hr>
+          <div class="d-flex justify-content-between fw-bold mb-3"><span>Total</span><span>{{ formatVnd(o.total) }}</span></div>
+
+          <div class="small mb-1"><span class="text-muted">Payment method:</span> {{ o.paymentMethod }}</div>
+          <div class="small mb-3"><span class="text-muted">Payment status:</span> <span class="badge text-bg-light border">{{ o.paymentStatus }}</span></div>
+
+          @if (canCancel) {
+            <button class="btn btn-outline-danger btn-sm" [disabled]="cancelling()" (click)="cancelOrder()">Cancel order</button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,12 @@
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast show align-items-center text-bg-{{ toast.variant }} border-0 mb-2">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="bi {{ iconFor(toast.variant) }} me-2"></i>{{ toast.message }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="toastService.dismiss(toast.id)"></button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,41 @@
+## macOS
+.DS_Store
+
+## .NET / Visual Studio / Rider
+backend/**/bin/
+backend/**/obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.userosscache
+*.sln.docstates
+
+## EF Core
+backend/**/Migrations/*.Designer.cs.orig
+
+## Secrets — never commit
+**/appsettings.Development.json
+**/appsettings.Local.json
+.env
+.env.*
+!.env.example
+*.pfx
+*.key
+
+## Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/npm-debug.log*
+frontend/.env
+
+## Logs
+*.log
+logs/
+
+## Docker volumes (bind-mounted local data, if any)
+.docker-data/
+
+## OS junk
+Thumbs.db

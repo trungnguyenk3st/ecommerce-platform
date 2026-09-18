@@ -1,0 +1,28 @@
+<h1 class="h3 mb-4">Customers</h1>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      @for (customer of customers(); track customer.id) {
+        <tr>
+          <td>{{ customer.fullName }}</td>
+          <td class="small text-muted">{{ customer.email }}</td>
+          <td>
+            @for (role of customer.roles; track role) {
+              <span class="badge text-bg-light border me-1">{{ role }}</span>
+            }
+          </td>
+          <td>
+            @if (customer.isLocked) { <span class="badge text-bg-danger">Locked</span> } @else { <span class="badge text-bg-success">Active</span> }
+          </td>
+          <td>
+            <button class="btn btn-sm" [class.btn-outline-danger]="!customer.isLocked" [class.btn-outline-success]="customer.isLocked" (click)="toggleLock(customer)">
+              {{ customer.isLocked ? 'Unlock' : 'Lock' }}
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

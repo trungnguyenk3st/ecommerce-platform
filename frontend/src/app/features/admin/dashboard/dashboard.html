@@ -1,0 +1,86 @@
+@if (summary(); as s) {
+  <h1 class="h3 mb-4">Dashboard</h1>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="card p-3">
+        <span class="text-muted small">Total revenue</span>
+        <div class="fs-4 fw-bold">{{ formatVnd(s.totalRevenue) }}</div>
+        <span class="text-success small">{{ formatVnd(s.revenueLast30Days) }} in last 30 days</span>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card p-3">
+        <span class="text-muted small">Orders</span>
+        <div class="fs-4 fw-bold">{{ s.totalOrders }}</div>
+        <span class="text-warning small">{{ s.pendingOrders }} pending</span>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card p-3">
+        <span class="text-muted small">Products</span>
+        <div class="fs-4 fw-bold">{{ s.totalProducts }}</div>
+        <span class="text-muted small">{{ s.totalCategories }} categories</span>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card p-3">
+        <span class="text-muted small">Customers</span>
+        <div class="fs-4 fw-bold">{{ s.totalCustomers }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card p-3">
+        <h6 class="mb-3">Recent orders</h6>
+        <table class="table table-sm">
+          <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody>
+            @for (order of s.recentOrders; track order.id) {
+              <tr>
+                <td><a [routerLink]="['/admin/orders', order.id]">{{ order.orderNumber }}</a></td>
+                <td class="small">{{ order.customerEmail }}</td>
+                <td>{{ formatVnd(order.total) }}</td>
+                <td><span class="badge text-bg-light border">{{ order.status }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card p-3 mb-3">
+        <h6 class="mb-3">Top-selling products</h6>
+        <table class="table table-sm">
+          <thead><tr><th>Product</th><th>Units sold</th><th>Revenue</th></tr></thead>
+          <tbody>
+            @for (product of s.topProducts; track product.productId) {
+              <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.unitsSold }}</td>
+                <td>{{ formatVnd(product.revenue) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (s.lowStockProducts.length > 0) {
+        <div class="card p-3 border-warning">
+          <h6 class="mb-3 text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Low stock alert</h6>
+          <ul class="list-unstyled mb-0 small">
+            @for (product of s.lowStockProducts; track product.productId) {
+              <li class="d-flex justify-content-between border-bottom py-1">
+                <a [routerLink]="['/admin/products', product.productId, 'edit']">{{ product.name }}</a>
+                <span class="badge text-bg-warning">{{ product.stockQuantity }} left</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </div>
+}

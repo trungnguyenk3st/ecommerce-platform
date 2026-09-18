@@ -1,0 +1,30 @@
+<div class="container-fluid py-4">
+  <div class="row">
+    <aside class="col-lg-2 mb-4">
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+        <a class="list-group-item list-group-item-action" routerLink="/admin/products" routerLinkActive="active">
+          <i class="bi bi-box-seam me-2"></i>Products
+        </a>
+        <a class="list-group-item list-group-item-action" routerLink="/admin/categories" routerLinkActive="active">
+          <i class="bi bi-tags me-2"></i>Categories
+        </a>
+        <a class="list-group-item list-group-item-action" routerLink="/admin/orders" routerLinkActive="active">
+          <i class="bi bi-receipt me-2"></i>Orders
+        </a>
+        <a class="list-group-item list-group-item-action" routerLink="/admin/customers" routerLinkActive="active">
+          <i class="bi bi-people me-2"></i>Customers
+        </a>
+        <a class="list-group-item list-group-item-action" routerLink="/admin/coupons" routerLinkActive="active">
+          <i class="bi bi-ticket-perforated me-2"></i>Coupons
+        </a>
+      </div>
+    </aside>
+
+    <main class="col-lg-10">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

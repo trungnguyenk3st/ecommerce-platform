@@ -1,0 +1,73 @@
+<div class="container py-4">
+  <div class="row">
+    <aside class="col-lg-3 mb-4">
+      <div class="card p-3">
+        <h6 class="mb-3">Filters</h6>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Category</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filters.categoryId" (ngModelChange)="filters.page = 1; load()">
+            <option [ngValue]="undefined">All categories</option>
+            @for (category of categories(); track category.id) {
+              <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Price range (₫)</label>
+          <div class="d-flex gap-2">
+            <input type="number" class="form-control form-control-sm" placeholder="Min" [(ngModel)]="filters.minPrice" (change)="filters.page = 1; load()">
+            <input type="number" class="form-control form-control-sm" placeholder="Max" [(ngModel)]="filters.maxPrice" (change)="filters.page = 1; load()">
+          </div>
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="inStockOnly" [(ngModel)]="filters.inStockOnly" (ngModelChange)="filters.page = 1; load()">
+          <label class="form-check-label small" for="inStockOnly">In stock only</label>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm w-100" (click)="clearFilters()">Clear filters</button>
+      </div>
+    </aside>
+
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted small">{{ result()?.totalCount ?? 0 }} products found</span>
+        <select class="form-select form-select-sm w-auto" [(ngModel)]="filters.sortBy" (ngModelChange)="load()">
+          <option value="newest">Newest</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="price_desc">Price: high to low</option>
+          <option value="rating">Top rated</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+
+      @if (loading()) {
+        <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+      } @else if (result() && result()!.items.length === 0) {
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-search fs-1 d-block mb-2"></i>
+          No products match your filters.
+        </div>
+      } @else if (result()) {
+        <div class="row g-3">
+          @for (product of result()!.items; track product.id) {
+            <div class="col-6 col-md-4">
+              <app-product-card
+                [product]="product"
+                [isWishlisted]="wishlist.productIds().has(product.id)"
+                (addToCart)="addToCart($event)"
+                (toggleWishlist)="toggleWishlist($event)">
+              </app-product-card>
+            </div>
+          }
+        </div>
+
+        <div class="mt-4">
+          <app-pagination [page]="result()!.page" [totalPages]="result()!.totalPages" (pageChange)="onPageChange($event)"></app-pagination>
+        </div>
+      }
+    </div>
+  </div>
+</div>

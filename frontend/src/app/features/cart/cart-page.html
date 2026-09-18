@@ -1,0 +1,65 @@
+<div class="container py-4">
+  <h1 class="h3 mb-4">Your cart</h1>
+
+  @if (!auth.isAuthenticated()) {
+    <div class="alert alert-info">
+      <a routerLink="/login">Sign in</a> to save items to your cart across devices.
+    </div>
+  }
+
+  @if (cart.cart().items.length === 0) {
+    <div class="text-center py-5">
+      <i class="bi bi-cart-x fs-1 text-muted d-block mb-3"></i>
+      <p class="text-muted">Your cart is empty.</p>
+      <a routerLink="/products" class="btn btn-primary">Browse products</a>
+    </div>
+  } @else {
+    <div class="row g-4">
+      <div class="col-lg-8">
+        @for (item of cart.cart().items; track item.id) {
+          <div class="card mb-2">
+            <div class="card-body d-flex align-items-center gap-3">
+              <img
+                [src]="item.productImageUrl || 'https://placehold.co/80x80?text=No+Image'"
+                style="width: 72px; height: 72px; object-fit: cover;"
+                class="rounded"
+                alt="">
+
+              <div class="flex-grow-1">
+                <a [routerLink]="['/products', item.productSlug]" class="text-decoration-none text-reset fw-semibold">{{ item.productName }}</a>
+                <p class="text-muted small mb-0">{{ formatVnd(item.unitPrice) }} each</p>
+                @if (item.quantity >= item.availableStock) {
+                  <p class="text-warning small mb-0"><i class="bi bi-exclamation-triangle me-1"></i>Max available stock reached</p>
+                }
+              </div>
+
+              <div class="input-group" style="width: 120px;">
+                <button class="btn btn-outline-secondary btn-sm" (click)="updateQuantity(item.id, item.quantity - 1)">−</button>
+                <input type="text" class="form-control form-control-sm text-center" [value]="item.quantity" readonly>
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="item.quantity >= item.availableStock" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
+              </div>
+
+              <div class="text-end" style="width: 110px;">
+                <div class="fw-bold">{{ formatVnd(item.lineTotal) }}</div>
+              </div>
+
+              <button class="btn btn-link text-danger" (click)="removeItem(item.id)"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h6 class="mb-3">Order summary</h6>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal ({{ cart.cart().totalItems }} items)</span>
+            <span>{{ formatVnd(cart.cart().subtotal) }}</span>
+          </div>
+          <p class="text-muted small">Shipping and discounts calculated at checkout.</p>
+          <button class="btn btn-primary w-100" (click)="goToCheckout()">Proceed to checkout</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,128 @@
+@if (product(); as p) {
+  <div class="container py-4">
+    <nav class="mb-3 small">
+      <a routerLink="/products" class="text-decoration-none">Products</a> /
+      <a routerLink="/products" [queryParams]="{ categoryId: p.categoryId }" class="text-decoration-none">{{ p.categoryName }}</a> /
+      <span class="text-muted">{{ p.name }}</span>
+    </nav>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <img
+          [src]="p.images[activeImageIndex()]?.url || 'https://placehold.co/600x600?text=No+Image'"
+          class="img-fluid rounded border w-100 mb-2"
+          style="aspect-ratio: 1; object-fit: cover;"
+          [alt]="p.name">
+
+        @if (p.images.length > 1) {
+          <div class="d-flex gap-2">
+            @for (image of p.images; track image.id; let i = $index) {
+              <img
+                [src]="image.url"
+                class="rounded border cursor-pointer"
+                [class.border-primary]="i === activeImageIndex()"
+                style="width: 64px; height: 64px; object-fit: cover;"
+                (click)="activeImageIndex.set(i)"
+                alt="">
+            }
+          </div>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <h1 class="h3 mb-2">{{ p.name }}</h1>
+        <app-star-rating [rating]="p.averageRating" [count]="p.reviewCount" class="mb-2"></app-star-rating>
+        <p class="text-muted small">SKU: {{ p.sku }}</p>
+
+        <div class="d-flex align-items-baseline gap-2 mb-3">
+          <span class="fs-3 fw-bold text-primary">{{ formatVnd(p.price) }}</span>
+          @if (p.compareAtPrice && p.compareAtPrice > p.price) {
+            <span class="price-strike fs-6">{{ formatVnd(p.compareAtPrice) }}</span>
+          }
+        </div>
+
+        @if (p.stockQuantity > 0) {
+          <p class="text-success small"><i class="bi bi-check-circle-fill me-1"></i>In stock ({{ p.stockQuantity }} available)</p>
+        } @else {
+          <p class="text-danger small"><i class="bi bi-x-circle-fill me-1"></i>Out of stock</p>
+        }
+
+        <p class="text-secondary">{{ p.description }}</p>
+
+        <div class="d-flex align-items-center gap-3 my-3">
+          <div class="input-group" style="width: 130px;">
+            <button class="btn btn-outline-secondary" (click)="decrementQuantity()">−</button>
+            <input type="text" class="form-control text-center" [value]="quantity()" readonly>
+            <button class="btn btn-outline-secondary" (click)="incrementQuantity()">+</button>
+          </div>
+
+          <button class="btn btn-primary flex-grow-1" [disabled]="p.stockQuantity === 0" (click)="addToCart()">
+            <i class="bi bi-cart-plus me-1"></i>Add to cart
+          </button>
+
+          <button class="btn btn-outline-danger" (click)="toggleWishlist()">
+            <i class="bi" [class.bi-heart-fill]="wishlist.productIds().has(p.id)" [class.bi-heart]="!wishlist.productIds().has(p.id)"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 class="h5 mb-3">Customer reviews ({{ reviews().length }})</h2>
+
+        @if (auth.isAuthenticated()) {
+          <div class="card p-3 mb-4">
+            <h6 class="mb-2">Write a review</h6>
+            <div class="mb-2">
+              <select class="form-select form-select-sm w-auto" [(ngModel)]="newRating">
+                <option [ngValue]="5">5 — Excellent</option>
+                <option [ngValue]="4">4 — Good</option>
+                <option [ngValue]="3">3 — Average</option>
+                <option [ngValue]="2">2 — Poor</option>
+                <option [ngValue]="1">1 — Terrible</option>
+              </select>
+            </div>
+            <textarea class="form-control mb-2" rows="2" placeholder="Share your thoughts (optional)" [(ngModel)]="newComment"></textarea>
+            <button class="btn btn-primary btn-sm align-self-start" [disabled]="submittingReview" (click)="submitReview()">Submit review</button>
+            <p class="text-muted small mt-1 mb-0">You can only review products you've purchased.</p>
+          </div>
+        }
+
+        @if (reviews().length === 0) {
+          <p class="text-muted">No reviews yet.</p>
+        }
+
+        @for (review of reviews(); track review.id) {
+          <div class="border-bottom pb-3 mb-3">
+            <div class="d-flex justify-content-between">
+              <strong>{{ review.userDisplayName }}</strong>
+              <span class="text-muted small">{{ review.createdAt | date: 'mediumDate' }}</span>
+            </div>
+            <app-star-rating [rating]="review.rating" [showCount]="false" class="d-block mb-1"></app-star-rating>
+            @if (review.comment) { <p class="mb-0">{{ review.comment }}</p> }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (related().length > 0) {
+      <hr class="my-5">
+      <h2 class="h5 mb-3">You might also like</h2>
+      <div class="row g-3">
+        @for (item of related(); track item.id) {
+          <div class="col-6 col-md-3">
+            <app-product-card
+              [product]="item"
+              [isWishlisted]="wishlist.productIds().has(item.id)"
+              (addToCart)="addRelatedToCart($event)"
+              (toggleWishlist)="toggleRelatedWishlist($event)">
+            </app-product-card>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,23 @@
+<div class="container py-5 text-center" style="max-width: 500px;">
+  @if (loading()) {
+    <div class="spinner-border text-primary mb-3"></div>
+    <p class="text-muted">Confirming your order…</p>
+  } @else if (errorMessage()) {
+    <i class="bi bi-exclamation-circle-fill text-danger fs-1 d-block mb-3"></i>
+    <h1 class="h4 mb-2">Something went wrong</h1>
+    <p class="text-muted">{{ errorMessage() }}</p>
+    <a routerLink="/orders" class="btn btn-primary mt-2">View my orders</a>
+  } @else if (order(); as o) {
+    @if (o.status === 'Cancelled' || o.paymentStatus === 'Failed') {
+      <i class="bi bi-x-circle-fill text-danger fs-1 d-block mb-3"></i>
+      <h1 class="h4 mb-2">Payment failed</h1>
+      <p class="text-muted">Order {{ o.orderNumber }} was not completed. Your items have been returned to stock.</p>
+    } @else {
+      <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-3"></i>
+      <h1 class="h4 mb-2">Order placed successfully!</h1>
+      <p class="text-muted">Order <strong>{{ o.orderNumber }}</strong> — total {{ formatVnd(o.total) }}</p>
+    }
+    <a [routerLink]="['/orders', o.id]" class="btn btn-primary mt-2 me-2">View order</a>
+    <a routerLink="/products" class="btn btn-outline-secondary mt-2">Continue shopping</a>
+  }
+</div>

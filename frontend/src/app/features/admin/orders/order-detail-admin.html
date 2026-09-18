@@ -1,0 +1,49 @@
+@if (order(); as o) {
+  <a routerLink="/admin/orders" class="small text-decoration-none d-block mb-3"><i class="bi bi-arrow-left me-1"></i>Back to orders</a>
+
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h1 class="h4 mb-1">Order {{ o.orderNumber }}</h1>
+      <p class="text-muted small mb-0">Placed on {{ o.createdAt | date: 'medium' }} · {{ o.paymentMethod }}</p>
+    </div>
+    <span class="badge text-bg-primary fs-6">{{ o.status }}</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card p-3 mb-3">
+        <h6 class="mb-3">Items</h6>
+        @for (item of o.items; track item.productId) {
+          <div class="d-flex justify-content-between mb-2 small">
+            <span>{{ item.productName }} × {{ item.quantity }}</span>
+            <span>{{ formatVnd(item.lineTotal) }}</span>
+          </div>
+        }
+        <hr>
+        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ formatVnd(o.total) }}</span></div>
+      </div>
+
+      <div class="card p-3">
+        <h6 class="mb-2">Shipping to</h6>
+        <p class="mb-0">{{ o.shippingFullName }} — {{ o.shippingPhone }}</p>
+        <p class="mb-0 text-muted small">{{ o.shippingLine1 }}{{ o.shippingLine2 ? ', ' + o.shippingLine2 : '' }}, {{ o.shippingCity }}, {{ o.shippingProvince }}</p>
+        @if (o.customerNote) { <p class="mt-2 mb-0 small"><strong>Note:</strong> {{ o.customerNote }}</p> }
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card p-3">
+        <h6 class="mb-3">Update status</h6>
+        <select class="form-select mb-2" [(ngModel)]="selectedStatus">
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+        <button class="btn btn-primary btn-sm" [disabled]="updating() || selectedStatus === o.status" (click)="updateStatus()">Update</button>
+
+        <hr>
+        <div class="small"><span class="text-muted">Payment status:</span> <span class="badge text-bg-light border">{{ o.paymentStatus }}</span></div>
+      </div>
+    </div>
+  </div>
+}

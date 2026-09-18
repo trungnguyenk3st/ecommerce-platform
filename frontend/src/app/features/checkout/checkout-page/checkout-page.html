@@ -1,0 +1,117 @@
+<div class="container py-4">
+  <h1 class="h3 mb-4">Checkout</h1>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card p-3 mb-3">
+        <h6 class="mb-3">Shipping address</h6>
+
+        @for (address of addresses(); track address.id) {
+          <div class="form-check border rounded p-2 mb-2">
+            <input class="form-check-input" type="radio" name="address" [id]="'addr-' + address.id"
+              [checked]="selectedAddressId() === address.id" (change)="selectedAddressId.set(address.id)">
+            <label class="form-check-label" [for]="'addr-' + address.id">
+              <strong>{{ address.fullName }}</strong> — {{ address.phone }}<br>
+              <span class="text-muted small">{{ address.line1 }}, {{ address.city }}, {{ address.province }}</span>
+            </label>
+          </div>
+        }
+
+        @if (!showAddressForm()) {
+          <button class="btn btn-outline-secondary btn-sm align-self-start" (click)="showAddressForm.set(true)">
+            <i class="bi bi-plus-lg me-1"></i>Add a new address
+          </button>
+        } @else {
+          <form [formGroup]="addressForm" (ngSubmit)="saveNewAddress()" class="border-top pt-3 mt-2">
+            <div class="row g-2">
+              <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Full name" formControlName="fullName"></div>
+              <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Phone" formControlName="phone"></div>
+              <div class="col-12"><input class="form-control form-control-sm" placeholder="Address line 1" formControlName="line1"></div>
+              <div class="col-md-4"><input class="form-control form-control-sm" placeholder="City" formControlName="city"></div>
+              <div class="col-md-4"><input class="form-control form-control-sm" placeholder="Province" formControlName="province"></div>
+              <div class="col-md-4"><input class="form-control form-control-sm" placeholder="Postal code" formControlName="postalCode"></div>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="savingAddress()">Save address</button>
+              @if (addresses().length > 0) {
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="showAddressForm.set(false)">Cancel</button>
+              }
+            </div>
+          </form>
+        }
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6 class="mb-3">Payment method</h6>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="payment" id="pay-cod"
+            [checked]="paymentMethod() === 'CashOnDelivery'" (change)="paymentMethod.set('CashOnDelivery')">
+          <label class="form-check-label" for="pay-cod"><i class="bi bi-cash-coin me-1"></i>Cash on delivery</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="payment" id="pay-vnpay"
+            [checked]="paymentMethod() === 'VnPay'" (change)="paymentMethod.set('VnPay')">
+          <label class="form-check-label" for="pay-vnpay"><i class="bi bi-credit-card me-1"></i>VNPay (ATM / QR / Credit card)</label>
+        </div>
+      </div>
+
+      <div class="card p-3">
+        <h6 class="mb-2">Order note (optional)</h6>
+        <textarea class="form-control" rows="2" [(ngModel)]="customerNote" name="customerNote" [ngModelOptions]="{standalone: true}"></textarea>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card p-3">
+        <h6 class="mb-3">Order summary</h6>
+
+        @for (item of cart.cart().items; track item.id) {
+          <div class="d-flex justify-content-between small mb-2">
+            <span>{{ item.productName }} × {{ item.quantity }}</span>
+            <span>{{ formatVnd(item.lineTotal) }}</span>
+          </div>
+        }
+
+        <hr>
+
+        <div class="d-flex gap-2 mb-2">
+          @if (!couponApplied()) {
+            <input class="form-control form-control-sm" placeholder="Coupon code" [ngModel]="couponCode()" [ngModelOptions]="{standalone: true}" (ngModelChange)="couponCode.set($event)">
+            <button class="btn btn-outline-primary btn-sm text-nowrap" [disabled]="validatingCoupon()" (click)="applyCoupon()">Apply</button>
+          } @else {
+            <span class="badge text-bg-success">{{ couponCode() }} applied</span>
+            <button class="btn btn-link btn-sm p-0 ms-2" (click)="removeCoupon()">Remove</button>
+          }
+        </div>
+        @if (couponMessage() && !couponApplied()) {
+          <p class="text-danger small">{{ couponMessage() }}</p>
+        }
+
+        <div class="d-flex justify-content-between small mb-1">
+          <span class="text-muted">Subtotal</span>
+          <span>{{ formatVnd(cart.cart().subtotal) }}</span>
+        </div>
+        @if (couponDiscount() > 0) {
+          <div class="d-flex justify-content-between small mb-1 text-success">
+            <span>Discount</span>
+            <span>−{{ formatVnd(couponDiscount()) }}</span>
+          </div>
+        }
+        <div class="d-flex justify-content-between small mb-2">
+          <span class="text-muted">Shipping</span>
+          <span>{{ shippingFee() === 0 ? 'Free' : formatVnd(shippingFee()) }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+          <span>Total</span>
+          <span>{{ formatVnd(total()) }}</span>
+        </div>
+
+        <button class="btn btn-primary w-100" [disabled]="placing() || !selectedAddressId()" (click)="placeOrder()">
+          @if (placing()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+          Place order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
