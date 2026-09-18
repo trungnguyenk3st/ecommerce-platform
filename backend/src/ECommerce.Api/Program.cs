@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ECommerce.Api.Middleware;
 using ECommerce.Api.Persistence;
 using ECommerce.Application;
@@ -6,7 +7,10 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// Serialize enums (OrderStatus, PaymentMethod, PaymentStatus, DiscountType, ...) as their string
+// names rather than numeric values, matching the Angular frontend's TypeScript string-literal types.
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 

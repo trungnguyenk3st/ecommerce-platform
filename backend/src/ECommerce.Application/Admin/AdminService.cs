@@ -32,13 +32,28 @@ public class AdminService : IAdminService
             .Where(o => revenueStatuses.Contains(o.Status) && o.CreatedAt >= thirtyDaysAgo)
             .SumAsync(o => (decimal?)o.Total) ?? 0;
 
-        var topProducts = await _db.OrderItems
-            .Where(oi => revenueStatuses.Contains(oi.Order.Status))
+        var revenueOrderIds = _db.Orders.Where(o => revenueStatuses.Contains(o.Status)).Select(o => o.Id);
+
+        // Project to an anonymous type first — EF Core translates GroupBy + multiple aggregates
+        // reliably into that shape, but not always when constructing a record directly in the
+        // same Select (it falls back to client evaluation and throws instead).
+        var topProductsRaw = await _db.OrderItems
+            .Where(oi => revenueOrderIds.Contains(oi.OrderId))
             .GroupBy(oi => new { oi.ProductId, oi.ProductName })
-            .Select(g => new TopProductDto(g.Key.ProductId, g.Key.ProductName, g.Sum(x => x.Quantity), g.Sum(x => x.UnitPrice * x.Quantity)))
+            .Select(g => new
+            {
+                g.Key.ProductId,
+                g.Key.ProductName,
+                UnitsSold = g.Sum(x => x.Quantity),
+                Revenue = g.Sum(x => x.UnitPrice * x.Quantity)
+            })
             .OrderByDescending(x => x.Revenue)
             .Take(5)
             .ToListAsync();
+
+        var topProducts = topProductsRaw
+            .Select(x => new TopProductDto(x.ProductId, x.ProductName, x.UnitsSold, x.Revenue))
+            .ToList();
 
         var recentOrdersRaw = await _db.Orders
             .OrderByDescending(o => o.CreatedAt)
