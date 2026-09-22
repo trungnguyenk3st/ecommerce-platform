@@ -1,0 +1,110 @@
+<div class="container py-4" style="max-width: 480px;">
+  <div class="alert alert-info small mb-4">
+    <strong>Prototype, not a store feature.</strong> This route demonstrates the field-capture
+    mechanics a property-management / field-service platform needs — GPS check-in and photo
+    proof-of-service on a mobile-first layout — as a standalone spike inside this codebase.
+    Client-side only for this demo (resets on reload); a production build would persist visits to
+    the API the same way <code>orders</code> and <code>cart</code> already do in this app.
+  </div>
+
+  <h1 class="h4 mb-3"><i class="bi bi-geo-alt-fill me-1"></i>Log a service visit</h1>
+
+  <div class="card p-3 mb-4">
+    <div class="mb-3">
+      <label class="form-label small fw-semibold">Property / unit</label>
+      <select class="form-select" [ngModel]="selectedPropertyId()" (ngModelChange)="selectedPropertyId.set($event)">
+        <option [ngValue]="null" disabled>Select a property…</option>
+        @for (p of properties; track p.id) {
+          <option [ngValue]="p.id">{{ p.name }} — {{ p.unit }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label small fw-semibold">Service type</label>
+      <select class="form-select" [ngModel]="selectedServiceType()" (ngModelChange)="selectedServiceType.set($event)">
+        <option [ngValue]="null" disabled>Select a service…</option>
+        @for (s of serviceTypes; track s) {
+          <option [ngValue]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label small fw-semibold d-block">GPS check-in</label>
+      @if (!location()) {
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="locating()" (click)="captureLocation()">
+          @if (locating()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          <i class="bi bi-crosshair me-1"></i>Capture current location
+        </button>
+        @if (locationError()) {
+          <div class="text-danger small mt-2">{{ locationError() }}</div>
+        }
+      } @else {
+        <div class="border rounded p-2 small d-flex justify-content-between align-items-center">
+          <div>
+            <i class="bi bi-check-circle-fill text-success me-1"></i>
+            {{ location()!.lat.toFixed(5) }}, {{ location()!.lng.toFixed(5) }}
+            <span class="text-muted">(±{{ location()!.accuracy | number: '1.0-0' }}m)</span><br>
+            <a [href]="mapUrl(location()!)" target="_blank" rel="noopener" class="small">View on map</a>
+          </div>
+          <button type="button" class="btn btn-link btn-sm text-danger" (click)="location.set(null)">Retake</button>
+        </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label small fw-semibold d-block">Proof photo</label>
+      <input #fileInput type="file" accept="image/*" capture="environment" class="d-none" (change)="onPhotoSelected($event)">
+      @if (!photoDataUrl()) {
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="triggerPhotoPicker()">
+          <i class="bi bi-camera-fill me-1"></i>Take / choose photo
+        </button>
+      } @else {
+        <div class="position-relative d-inline-block">
+          <img [src]="photoDataUrl()" alt="Proof of service" class="rounded" style="width: 140px; height: 140px; object-fit: cover;">
+          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" style="width: 24px; height: 24px; padding: 0; line-height: 1; transform: translate(40%, -40%);" (click)="clearPhoto()">×</button>
+        </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="violation" [ngModel]="violationFlagged()" (ngModelChange)="violationFlagged.set($event)">
+        <label class="form-check-label small fw-semibold" for="violation">Flag a unit-level violation</label>
+      </div>
+      @if (violationFlagged()) {
+        <textarea class="form-control form-control-sm mt-2" rows="2" placeholder="Describe the violation…"
+          [ngModel]="violationNote()" (ngModelChange)="violationNote.set($event)"></textarea>
+      }
+    </div>
+
+    <button type="button" class="btn btn-primary w-100" [disabled]="!canSubmit()" (click)="submitVisit()">
+      <i class="bi bi-cloud-upload-fill me-1"></i>Submit proof of service
+    </button>
+  </div>
+
+  <h2 class="h6 mb-3">Recent visits ({{ visits().length }})</h2>
+
+  @if (visits().length === 0) {
+    <p class="text-muted small">No visits logged yet this session.</p>
+  }
+
+  @for (visit of visits(); track visit.id) {
+    <div class="card p-2 mb-2">
+      <div class="d-flex gap-2">
+        <img [src]="visit.photoDataUrl" alt="" class="rounded flex-shrink-0" style="width: 64px; height: 64px; object-fit: cover;">
+        <div class="small flex-grow-1">
+          <div class="fw-semibold">{{ visit.propertyName }} — {{ visit.unit }}</div>
+          <div class="text-muted">{{ visit.serviceType }} · {{ visit.timestamp | date: 'MMM d, y, h:mm a' }}</div>
+          <a [href]="mapUrl(visit.location)" target="_blank" rel="noopener">
+            {{ visit.location.lat.toFixed(5) }}, {{ visit.location.lng.toFixed(5) }}
+          </a>
+          @if (visit.violationNote) {
+            <div class="mt-1"><span class="badge text-bg-danger">Violation</span> {{ visit.violationNote }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

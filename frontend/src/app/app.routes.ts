@@ -79,5 +79,9 @@ export const routes: Routes = [
       { path: 'coupons', loadComponent: () => import('./features/admin/coupons/coupon-list').then(m => m.AdminCouponListComponent) }
     ]
   },
+  {
+    path: 'field-service-demo',
+    loadComponent: () => import('./features/field-service-demo/field-service-demo').then(m => m.FieldServiceDemoComponent)
+  },
   { path: '**', redirectTo: '' }
 ];
